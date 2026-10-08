@@ -414,6 +414,9 @@ jobs:
             cmake.define.${{ matrix.AL_BACKEND_UDA }}
 
           # Dependency installation into /tmp/imas-core-install
+          # UDA builds with -Werror and uses X509_cmp_time, deprecated in
+          # Homebrew's OpenSSL 4.0: don't turn deprecation warnings into errors
+          # (can be dropped once UDA_REF includes the upstream fix)
           CIBW_BEFORE_ALL_MACOS: >
             brew update >&2;
             brew install cmake pkg-config boost hdf5 libomp ninja fmt spdlog libxml2 openssl libmemcached >&2;
@@ -430,6 +433,7 @@ jobs:
                 -DCLIENT_ONLY=ON \
                 -DENABLE_CAPNP=ON \
                 -DMACOSX_DEPLOYMENT_TARGET=14.0 \
+                -DCMAKE_CXX_FLAGS=-Wno-error=deprecated-declarations \
                 -DCMAKE_INSTALL_PREFIX=/tmp/imas-core-install >&2 &&
             cmake --build build --target install -j >&2;
 
